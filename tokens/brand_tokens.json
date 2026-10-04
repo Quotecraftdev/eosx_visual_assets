@@ -1,0 +1,128 @@
+{
+  "brand": "Energy OSX",
+  "wordmark": "Energy OSX",
+  "tagline": "The operating layer for energy intelligence",
+  "domains": [
+    "Operational",
+    "Commercial",
+    "Financial"
+  ],
+  "modules_strapline": "Settlement · Pricing · Billing · Market · Risk",
+  "colours": {
+    "deep_navy": "#031A3A",
+    "navy": "#062B5F",
+    "teal": "#00A7A7",
+    "aqua": "#4EC7D9",
+    "mist": "#EAF7F8",
+    "ice": "#F6FBFC",
+    "white": "#FFFFFF",
+    "slate": "#34475E",
+    "border": "#D7E6EA"
+  },
+  "on_dark": {
+    "gradient": [
+      "#031A3A",
+      "#04213F",
+      "#0A5C63"
+    ],
+    "gradient_stops": [
+      0.0,
+      0.55,
+      1.0
+    ],
+    "accent_teal": "#35C5C5",
+    "muted_teal": "#7FBFC8",
+    "sublabel": "#8FA6BC",
+    "divider": "rgba(255,255,255,0.14)"
+  },
+  "fonts": {
+    "heading": "Manrope",
+    "body": "Inter",
+    "mono": "IBM Plex Mono"
+  },
+  "product_accents": {
+    "note": "Accent is held CONSTANT teal on dark surfaces (see on_dark.accent_teal). Apps are distinguished by icon glyph + punch line, not colour. These per-module hues are retained for light-surface UI (cards, chips) only.",
+    "settlement": "#00A7A7",
+    "pricing": "#1B64D8",
+    "billing": "#6C5CE7",
+    "market": "#00B894",
+    "risk": "#F39C12"
+  },
+  "apps": {
+    "signal": {
+      "name": "Signal Intelligence",
+      "icon": "signal",
+      "punchline": "DETECT. FLAG. ACT.",
+      "tagline_draft": false
+    },
+    "pricing": {
+      "name": "Pricing Intelligence",
+      "icon": "pricing",
+      "punchline": "PRICES IN SECONDS",
+      "tagline_draft": false
+    },
+    "integrity": {
+      "name": "Integrity Intelligence",
+      "icon": "integrity",
+      "punchline": "VERIFY. VALIDATE. TRUST.",
+      "tagline_draft": true
+    },
+    "market": {
+      "name": "Market Intelligence",
+      "icon": "market",
+      "punchline": "POSITION. GAP. WIN.",
+      "tagline_draft": false
+    },
+    "settlement": {
+      "name": "Settlement Intelligence",
+      "icon": "settlement",
+      "punchline": "BOUGHT. BILLED. BALANCED.",
+      "tagline_draft": true
+    },
+    "bespoke": {
+      "name": "Bespoke Intelligence",
+      "icon": "bespoke",
+      "punchline": "SCOPE. BUILD. SHIP.",
+      "tagline_draft": true
+    },
+    "pipeline": {
+      "name": "Pipeline Intelligence",
+      "icon": "pipeline",
+      "punchline": "TRACK. CONVERT. FORECAST.",
+      "tagline_draft": false
+    },
+    "dashboard": {
+      "name": "Dashboard",
+      "icon": "dashboard",
+      "punchline": "SEE. KNOW. ACT.",
+      "tagline_draft": true
+    },
+    "professional": {
+      "name": "Professional Intelligence",
+      "icon": "professional",
+      "punchline": "CODIFY. STANDARDISE. AUTOMATE.",
+      "tagline_draft": true
+    },
+    "custom": {
+      "name": "Custom Intelligence",
+      "icon": "custom",
+      "punchline": "UNDERSTAND. DEVELOP. DEPLOY.",
+      "tagline_draft": true
+    },
+    "learning": {
+      "name": "Learning Intelligence",
+      "icon": "learning",
+      "punchline": "CAPTURE. BUILD. RECORD.",
+      "tagline_draft": false
+    }
+  },
+  "lockup": {
+    "note": "Product lockup: the small dark card used above a product video and anywhere a product needs to sign its own name. Geometry taken from the two shipped lockups (Pricing, Professional). Wave 1 and the X carry the accent; waves 2 and 3 are constant.",
+    "card_fill": "#0C2340",
+    "card_stroke": "#16324f",
+    "wave_accent": "#00A7A7",
+    "wave_aqua": "#4EC7D9",
+    "wave_slate": "#64748B",
+    "label": "#8FA3B8"
+  }
+}

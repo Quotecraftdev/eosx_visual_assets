@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 689 219" width="100%" role="img" aria-label="Energy OSX — Integrity Intelligence logo">
+  <title>Energy OSX — Integrity Intelligence logo</title>
+  <desc>Dark navy lockup: a white open arc with three flowing waves in teal, aqua and slate, the Energy OS wordmark with a teal X, and the label Integrity Intelligence.</desc>
+
+  <rect x="1.0" y="1.0" width="687" height="217" rx="16" fill="#0C2340" stroke="#16324f" stroke-width="1.5"/>
+
+  <g fill="none" stroke-linecap="round">
+    <path d="M166.7 149.3 A72 72 0 1 1 166.7 60.7" stroke="#FFFFFF" stroke-width="8.5"/>
+    <path d="M58 77 C80 62,102 62,122 77 C143 92,165 92,186 77 C202 65,218 65,232 73" stroke="#00A7A7" stroke-width="7.5"/>
+    <path d="M58 105 C80 90,102 90,122 105 C143 120,165 120,186 105 C202 93,218 93,232 101" stroke="#4EC7D9" stroke-width="7.5"/>
+    <path d="M58 133 C80 118,102 118,122 133 C143 148,165 148,186 133 C202 121,218 121,232 129" stroke="#64748B" stroke-width="7.5"/>
+  </g>
+
+  <text x="252" y="112" font-family='"Manrope", "DejaVu Sans", sans-serif' font-size="58" font-weight="800" letter-spacing="-0.5"><tspan fill="#FFFFFF">Energy OS</tspan><tspan fill="#00A7A7">X</tspan></text>
+
+  <text x="255" y="144" font-family='"Inter", "DejaVu Sans", sans-serif' font-size="14.5" font-weight="600" letter-spacing="3.2" fill="#8FA3B8">INTEGRITY INTELLIGENCE</text>
+</svg>

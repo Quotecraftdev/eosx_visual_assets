@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.vscode/
+.idea/
+.DS_Store
+
+# Dated brand-asset snapshots taken before two registry changes. They stay on
+# disk and out of the repo. These are assets only - no prices, no confidentiality
+# marking - so ignoring them is adequate. Anything confidential leaves the folder
+# entirely instead; a gitignore is one `git add -f` away from publishing it.
+_backup_2026-09-19_pre-learning/
+_backup_2026-09-30_pre-quote/
