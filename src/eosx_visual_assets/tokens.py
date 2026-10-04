@@ -1,24 +1,38 @@
 # ==============================================================
 # File: tokens.py
-# Version: v0.1.0 | Date: 2026-07-14
+# Version: v0.2.1 | Date: 2026-10-04
 # Purpose: Single source of truth for Energy OSX visual-asset
-#          tokens. Loads tokens/brand_tokens.json and exposes it
-#          as typed constants. Nothing in this package defines a
-#          colour or font anywhere else.
+#          tokens. Loads the registry and exposes it as typed
+#          constants. Nothing in this package defines a colour
+#          or font anywhere else.
+#
+#          The registry lives INSIDE the package, at
+#          eosx_visual_assets/tokens/brand_tokens.json, and is
+#          read with importlib.resources. It used to sit at the
+#          repo root and be found by walking up from __file__,
+#          which worked in a checkout and failed on every
+#          installed copy - 0.2.0 shipped unimportable because
+#          of it. One location, one lookup, no fallback.
 # ==============================================================
 
 from __future__ import annotations
 
 import json
+from importlib.resources import as_file, files
 from pathlib import Path
 
-# tokens/brand_tokens.json lives at the repo root, two levels up
-# from src/eosx_visual_assets/.
-_REPO_ROOT = Path(__file__).resolve().parents[2]
-TOKENS_PATH = _REPO_ROOT / "tokens" / "brand_tokens.json"
+_TOKENS_RESOURCE = files("eosx_visual_assets").joinpath("tokens/brand_tokens.json")
+TOKENS: dict = json.loads(_TOKENS_RESOURCE.read_text(encoding="utf-8"))
 
-with TOKENS_PATH.open(encoding="utf-8") as _f:
-    TOKENS: dict = json.load(_f)
+# TOKENS_PATH is exported and callers may expect a real path. From a normal
+# install or a checkout the resource IS a file on disk, so give them that.
+# Only a zipimported package has no path, and then it is None rather than a
+# path that does not exist.
+try:
+    with as_file(_TOKENS_RESOURCE) as _p:
+        TOKENS_PATH: Path | None = Path(_p)
+except (FileNotFoundError, TypeError):  # pragma: no cover - zipimport only
+    TOKENS_PATH = None
 
 # ── Core brand palette ────────────────────────────────────
 DEEP_NAVY = TOKENS["colours"]["deep_navy"]

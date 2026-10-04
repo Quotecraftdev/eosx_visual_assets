@@ -7,7 +7,11 @@ It exists so that Energy OSX apps *pull* finished, on-brand assets from one plac
 ## What's in here
 
 ```
-tokens/        brand_tokens.json — the single source of truth (colours, fonts, app registry)
+src/eosx_visual_assets/tokens/
+               brand_tokens.json — the single source of truth
+               (colours, fonts, app registry). Inside the package so it
+               ships with an install; raw-file consumers read it from
+               that path on GitHub.
 brand/         brand PDF, colour/logo/UI reference sheets, wallpaper
 logos/         Energy OSX wordmark, icon, and product logo lockups (SVG + PNG)
 banners/       generated app banners  (banner_<slug>.svg / .png)
@@ -20,7 +24,7 @@ Generated assets in `banners/` and `favicons/` are committed so apps can grab a 
 
 ## Add an app (the whole workflow)
 
-1. Add one entry to `tokens/brand_tokens.json` under `apps`:
+1. Add one entry to `src/eosx_visual_assets/tokens/brand_tokens.json` under `apps`:
 
    ```json
    "risk": { "name": "Risk Intelligence", "icon": "market",

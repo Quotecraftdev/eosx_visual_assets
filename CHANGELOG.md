@@ -3,7 +3,48 @@
 All notable changes to `eosx-visual-assets` are documented here. The format
 follows Keep a Changelog; versions track the design tokens and template API.
 
-## [0.2.0] — 2026-10-04
+## [0.2.1] — 2026-10-04
+
+**0.2.0 was published, installable, and impossible to import.** `pip install` succeeded and
+`import eosx_visual_assets` then raised `FileNotFoundError`. The registry lived at the repo
+root, outside `src/`, so `packages.find` never collected it and `package-data` named only the
+fonts; `tokens.py` reached it by walking up from `__file__`, which is the repo root in a
+checkout and `Lib/` in an install. The load runs at import, so nothing in the package was
+usable — not partly, at all. **The `v0.2.0` tag is left in place deliberately.** Nothing
+consumes it, and the record is worth more than a tidy tag list.
+
+### Fixed
+- The registry moved to `src/eosx_visual_assets/tokens/brand_tokens.json` — inside the package,
+  one location, no copy left at the root. `tokens.py` reads it with `importlib.resources`
+  instead of path arithmetic, and `package-data` ships it beside the fonts. **No fallback was
+  added**: trying the root first and the package second is how this survived to a release,
+  because the tests pass from the source tree where the broken path works.
+- `TOKENS_PATH` stays exported and stays a real `Path` that exists, for both a checkout and a
+  normal install. It is `None` only under zipimport, where no filesystem path exists — rather
+  than a path that is merely wrong.
+
+### Added
+- `tests/test_installed_package.py` — builds the package, installs it into a throwaway
+  virtualenv, and asserts from a directory that is not the repo, with `PYTHONPATH` stripped,
+  that the package imports, that the registry holds eleven apps, that `TOKENS_PATH` exists and
+  that the console script was created. Verified against the 0.2.0 tree: three of its four
+  checks fail there. **Sixty tests passed over a release that could not be imported, because
+  every one of them ran from the source tree.**
+- `.github/workflows/ci.yml` — the first CI in the group. Lint, test, build the wheel, assert
+  the registry is inside it, then install and import it from outside the repo. **Written but
+  not yet pushed:** the GitHub token in use lacks the `workflow` scope, so the remote refuses
+  any commit that creates `.github/workflows/`. It is on disk, untracked, awaiting
+  `gh auth refresh -h github.com -s workflow`.
+
+### Changed
+- `README.md`, `CLAUDE.md`, `docs/catalogue.md` and the catalogue line `build.py` generates all
+  named the old root path and now name the real one. `docs/catalogue.md` was edited directly,
+  not regenerated — regenerating it would re-rasterise the banner PNGs, which is another work
+  order's job.
+- `build.py` keeps its `REPO_ROOT` for *writing* generated output into a checkout, which is
+  legitimate. It never used that route to find the registry.
+
+## [0.2.0] — 2026-10-04 — BROKEN, do not use
 
 **Reconstructed from the working tree, not from history.** The library was a plain folder
 with no `.git` until this release, so there is nothing to read back: this entry records the

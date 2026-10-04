@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eosx-visual-assets"
-version = "0.2.0"
+version = "0.2.1"
 description = "Shared brand and visual-asset library for the Energy OSX platform (banners, favicons, tokens)."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -34,7 +34,7 @@ Repository = "https://github.com/Quotecraftdev/eosx_visual_assets"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"eosx_visual_assets" = ["assets/fonts/*.ttf"]
+"eosx_visual_assets" = ["assets/fonts/*.ttf", "tokens/*.json"]
 
 [tool.ruff]
 line-length = 100
@@ -48,3 +48,7 @@ known-first-party = ["eosx_visual_assets"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# "slow" marks the tests that build and install the package. They are slow on
+# purpose and they run by default: the suite that skipped this class of test is
+# the suite that shipped an unimportable 0.2.0.
+markers = ["slow: builds and installs the package into a throwaway virtualenv"]
