@@ -3,6 +3,32 @@
 All notable changes to `eosx-visual-assets` are documented here. The format
 follows Keep a Changelog; versions track the design tokens and template API.
 
+## [0.4.0] — 2026-10-05
+
+### Added
+- `web.py` and `eosx-assets-build --web` — the brand for TypeScript apps. Emits three generated
+  files to `dist/web/`: `tokens.ts` (the registry, typed, with an `AppSlug` union), `Banner.tsx`
+  (the React component) and `banner.css`.
+
+  `banner_html.py` returns an HTML string, which is right for Streamlit and wrong for React: a
+  string forced through `dangerouslySetInnerHTML` has no props, no types, and puts a Python build
+  step inside a TypeScript pipeline. The two React apps in the estate — Learning and Pipeline,
+  both Vite and React 19 — get a component instead.
+
+- `tests/test_web_emit.py` — including an equality test that **bundles the generated component
+  with esbuild, renders it with `react-dom/server`, and compares the DOM to `app_banner_html()`
+  node by node for all eleven apps.** It is not a resemblance check: the first run failed on a
+  single character, the domain separator, because the test decoded node's UTF-8 output as cp1252.
+  The cheap checks beside it need no toolchain and always run: the component must hold no colour,
+  no app name, no punchline and no strapline of its own, and its elements must match the Python
+  markup in the same order.
+
+### Note, not acted on
+Running the build regenerates the committed banner SVGs with the app zone **7.4px further left**
+than the committed version — the name is measured wider now than when they were written. The
+assets were reverted and left alone, because regenerating them belongs to the banner-PNG work
+order. It is the same measurement question recorded in §8 of that order.
+
 ## [0.3.1] — 2026-10-05
 
 ### Added

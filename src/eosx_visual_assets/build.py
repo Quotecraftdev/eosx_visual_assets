@@ -177,9 +177,16 @@ def _catalogue(apps: list[App]) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser(description="Build Energy OSX visual assets.")
     ap.add_argument("--no-png", action="store_true", help="write SVG masters only")
+    ap.add_argument("--web", action="store_true",
+                    help="also emit dist/web: tokens.ts, Banner.tsx and banner.css "
+                         "for the React apps")
     args = ap.parse_args()
     print(f"eosx-visual-assets build v{__version__}")
     build_all(make_png=not args.no_png)
+    if args.web:
+        from eosx_visual_assets.web import emit_web
+        for path in emit_web(REPO_ROOT / "dist" / "web"):
+            print(f"  web   {path.relative_to(REPO_ROOT)}")
 
 
 if __name__ == "__main__":
