@@ -3,6 +3,16 @@
 All notable changes to `eosx-visual-assets` are documented here. The format
 follows Keep a Changelog; versions track the design tokens and template API.
 
+## [0.3.1] — 2026-10-05
+
+### Added
+- `docs/CLAUDE_BRAND_BLOCK.md` — the canonical text of the brand block that every repo's
+  `CLAUDE.md` carries, versioned here with the tokens it points at.
+- `tools/check_brand_block.py` — fails when any repo's copy differs, naming the file and the
+  line. The copies are deliberate: a repo's own `CLAUDE.md` is the only one that reaches a
+  clone, a teammate or CI. Copies nobody checks are not deliberate, and on 05-10-2026 a wrong
+  bullet sat in thirteen files at once and was found by eye. Now it is found by a run.
+
 ## [0.3.0] — 2026-10-05
 
 ### Added
