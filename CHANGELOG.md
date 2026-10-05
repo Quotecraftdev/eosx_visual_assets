@@ -3,6 +3,29 @@
 All notable changes to `eosx-visual-assets` are documented here. The format
 follows Keep a Changelog; versions track the design tokens and template API.
 
+## [0.3.0] — 2026-10-05
+
+### Added
+- `banner_html.py` — the app banner as HTML and CSS, generated from the registry.
+  `banner.py` emits a fixed 1440×300 SVG, which is right on a web page and wrong in an app: a
+  fixed viewBox scales uniformly, so narrowing the column shrinks the type with it. This emits
+  the same banner as markup that reflows, with every size driven by **one multiplier** so the
+  proportions hold at any width. Below 560px the app zone moves under the platform zone rather
+  than the type shrinking past legibility.
+- `tests/test_banner_html.py` — the guarantee, not a description of one. It asserts the left
+  platform zone is **byte-identical across all eleven apps**, that each right zone is exactly the
+  registry's name and punchline, that no section or page name appears, that every colour in the
+  stylesheet is a token, and that no font-size is hardcoded. Each check was confirmed to fail
+  against a deliberately tampered stylesheet before being trusted.
+
+### Why
+Seven apps were hand-writing their own header against a spec that exists in three places, two of
+which had already diverged. A document cannot make eleven apps agree; a shared artefact and a
+failing test can. KB_GROUP.md §7.4 named this as the end state — this is it.
+
+An app now renders `app_banner_html(slug)` and includes `app_banner_css()` once. No geometry, no
+colour and no punchline remains in app code, so there is nothing left to drift.
+
 ## [0.2.1] — 2026-10-04
 
 **0.2.0 was published, installable, and impossible to import.** `pip install` succeeded and
