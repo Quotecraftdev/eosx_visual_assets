@@ -3,6 +3,23 @@
 All notable changes to `eosx-visual-assets` are documented here. The format
 follows Keep a Changelog; versions track the design tokens and template API.
 
+## [0.4.1] — 2026-10-06
+
+### Fixed
+- **The banner's text was invisible inside a Streamlit app.** Every child rule used a single
+  class, which loses to a host application's own text styling — Streamlit colours
+  `[data-testid="stMarkdownContainer"] p`, one class plus one element, and that outranks one
+  class. On a dark bar the eyebrow, headline and domains took the app's dark text colour and
+  disappeared; only the accent word survived, because its rule carried a class *and* an element.
+
+  Every child selector now carries the scope twice. `tests/test_banner_html.py` asserts the
+  depth, because both ways of getting this wrong happened within the hour: one scope made the
+  text invisible, and a bad edit left three, which needs three nested ancestors and matched
+  nothing — killing the accent word instead.
+
+  Found on the live Settlement app, not in a test. The preview that signed this off rendered the
+  banner outside any host container, where the single-class rules won.
+
 ## [0.4.0] — 2026-10-05
 
 ### Added

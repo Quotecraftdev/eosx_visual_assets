@@ -109,3 +109,23 @@ def test_css_is_identical_regardless_of_which_app_asked_for_it() -> None:
     assert app_banner_css() == app_banner_css()
     scoped = app_banner_css(scope=".x-banner")
     assert scoped.count(".x-banner") == app_banner_css().count(".eosx-banner")
+
+
+def test_every_child_rule_is_scoped_exactly_twice() -> None:
+    """Specificity, locked down - both ways of getting it wrong have happened.
+
+    One scope (`.eosx-banner__headline`) loses to a host's own text rule -
+    Streamlit colours `[data-testid="stMarkdownContainer"] p`, which outranks
+    a single class, and the whole platform zone went invisible on a dark bar
+    in a live app. Three scopes needs three nested ancestors and matches
+    nothing, which killed the accent word in the same hour.
+    """
+    css = app_banner_css()
+    selectors = [s.strip() for s in re.findall(r"^\s*(\.[^{]*)\{", css, re.M)]
+    assert selectors, "no selectors in the stylesheet"
+    for sel in selectors:
+        n = sel.count(".eosx-banner")
+        if "__" in sel:
+            assert n == 2, "child rule must carry the scope twice, found %d: %s" % (n, sel)
+        else:
+            assert n == 1, "root rule must carry the scope once, found %d: %s" % (n, sel)
