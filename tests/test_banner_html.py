@@ -20,6 +20,7 @@ import pytest
 from eosx_visual_assets import tokens as T
 from eosx_visual_assets.apps import APPS
 from eosx_visual_assets.banner_html import app_banner_css, app_banner_html
+from eosx_visual_assets.geometry import GEOMETRY
 
 ALL_SLUGS = sorted(APPS)
 
@@ -86,17 +87,19 @@ def test_every_colour_in_the_css_is_a_token() -> None:
     assert found <= sanctioned, "unsanctioned colour in the banner CSS: %s" % (found - sanctioned)
 
 
-def test_the_type_scale_is_one_multiplier() -> None:
-    """Proportion is the requirement, so every size must share one variable.
+def test_every_font_size_is_a_size_the_geometry_holds() -> None:
+    """The drawing's sizes are the design at any width.
 
-    If a size is ever hardcoded in px, two apps at different widths stop
-    looking like one system - which is the fault this module exists to end.
+    This replaces a check that every size scaled by one multiplier. The
+    multiplier was derived from a 1440px reference, which the drawing has not
+    got, and it made the banner shrink in a narrow column instead of matching
+    the standard.
     """
-    css = app_banner_css()
-    sizes = re.findall(r"font-size:\s*([^;]+);", css)
-    assert sizes, "no font sizes in the stylesheet"
-    for s in sizes:
-        assert "var(--eosx-b)" in s, "font-size does not scale with the banner: %r" % s
+    sizes = {float(s["size"]) for group in ("platform", "app")
+             for s in GEOMETRY[group].values() if isinstance(s, dict) and "size" in s}
+    found = {float(m) for m in re.findall(r"font-size:\s*(\d+(?:\.\d+)?)px", app_banner_css())}
+    assert found, "no font sizes in the stylesheet"
+    assert found <= sizes, "font sizes not in the geometry: %s" % sorted(found - sizes)
 
 
 def test_unknown_app_is_refused_rather_than_rendered() -> None:
@@ -129,3 +132,55 @@ def test_every_child_rule_is_scoped_exactly_twice() -> None:
             assert n == 2, "child rule must carry the scope twice, found %d: %s" % (n, sel)
         else:
             assert n == 1, "root rule must carry the scope once, found %d: %s" % (n, sel)
+
+
+def _geometry_numbers() -> set[float]:
+    """Every number the geometry file holds, at any depth."""
+    out: set[float] = set()
+
+    def walk(node):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if not k.startswith("_"):
+                    walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+        elif isinstance(node, (int, float)) and not isinstance(node, bool):
+            out.add(float(node))
+    walk(GEOMETRY)
+    return out
+
+
+def test_no_number_in_the_css_was_typed_by_the_renderer() -> None:
+    """The whole point of the geometry file.
+
+    Before it, the SVG renderer said headline 52 and the HTML renderer said 21,
+    with no shared constant and nothing comparing them. Any number here that is
+    not in the geometry file is a renderer inventing one again.
+    """
+    allowed = _geometry_numbers() | {0.0, 1.0, 100.0, 90.0, 50.0, 55.0, 2.0}
+    css = app_banner_css()
+    numbers = {float(n) for n in re.findall(r"(?<![\w-])(\d+(?:\.\d+)?)(?=px|em|%|)", css)}
+    stray = sorted(n for n in numbers if n not in allowed)
+    assert not stray, (
+        "numbers in the stylesheet that the geometry file does not hold: %s" % stray
+    )
+
+
+def test_the_renderer_reads_the_geometry_rather_than_copying_it() -> None:
+    """Change the data, and the stylesheet must change with it."""
+    import copy
+
+    from eosx_visual_assets import banner_html, geometry
+
+    original = copy.deepcopy(geometry.GEOMETRY)
+    try:
+        geometry.GEOMETRY["banner"]["radius"] = 999
+        assert "999" in banner_html.app_banner_css(), (
+            "the stylesheet ignored a changed geometry value - it is holding its own copy"
+        )
+    finally:
+        geometry.GEOMETRY.clear()
+        geometry.GEOMETRY.update(original)
+    assert "999" not in app_banner_css()

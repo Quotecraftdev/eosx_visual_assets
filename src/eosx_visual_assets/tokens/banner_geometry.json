@@ -1,0 +1,72 @@
+{
+  "_source": "energy_osx_banner_final_pricing_intelligence.html, 12-07-2026, the decided standard (Chris, 06-10-2026). KB_GROUP.md 7.4. Every number here is read off that drawing. No renderer may type a number of its own.",
+  "_units": "px unless stated. em for letter-spacing. unitless for line-height and weight.",
+  "_sizes_are_fixed": "The drawing's sizes ARE the design at any width: the box reflows, the type does not. An earlier build scaled every size by a multiplier derived from a 1440px reference - numbers that are nowhere in the drawing - which made the banner shrink in a narrow column instead of matching it.",
+  "_additions_not_in_the_drawing": "stack_below, stack_gap and stack_padding_top. The drawing is one width and says nothing about narrow containers. Below stack_below the two zones stop fitting side by side, so the app zone moves underneath. Chris to confirm or replace.",
+  "banner": {
+    "radius": 10,
+    "padding_y": 26,
+    "padding_x": 28,
+    "gap": 32
+  },
+  "divider": {
+    "width": 1,
+    "padding_left": 28
+  },
+  "platform": {
+    "eyebrow": {
+      "size": 11,
+      "weight": 400,
+      "letter_spacing": 0.14,
+      "line_height": 1.25,
+      "margin_bottom": 6,
+      "colour": "muted_teal",
+      "uppercase": true
+    },
+    "headline": {
+      "_break": "The strapline breaks BEFORE the joiner word, giving 'The operating layer' / 'for energy intelligence'. The 12-07-2026 drawing breaks AFTER it ('The operating layer for' / 'energy intelligence'); Chris chose this on 06-10-2026. Recorded here so both renderers break identically and nobody re-derives it from the drawing.",
+      "break_before_joiner": true,
+      "joiner": "for",
+      "size": 21,
+      "weight": 500,
+      "letter_spacing": 0,
+      "line_height": 1.25,
+      "margin_bottom": 8,
+      "colour": "white",
+      "accent_colour": "accent_teal"
+    },
+    "domains": {
+      "size": 11,
+      "weight": 400,
+      "letter_spacing": 0.03,
+      "line_height": 1.25,
+      "margin_bottom": 0,
+      "colour": "sublabel"
+    }
+  },
+  "app": {
+    "mark": {
+      "size": 22,
+      "gap": 9
+    },
+    "name": {
+      "size": 17,
+      "weight": 500,
+      "letter_spacing": 0,
+      "line_height": 1.25,
+      "margin_bottom": 7,
+      "colour": "white"
+    },
+    "punchline": {
+      "size": 10,
+      "weight": 400,
+      "letter_spacing": 0.16,
+      "line_height": 1.25,
+      "margin_bottom": 0,
+      "colour": "muted_teal"
+    }
+  },
+  "stack_below": 560,
+  "stack_gap": 18,
+  "stack_padding_top": 16
+}

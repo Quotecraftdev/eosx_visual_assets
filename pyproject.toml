@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eosx-visual-assets"
-version = "0.4.1"
+version = "0.5.0"
 description = "Shared brand and visual-asset library for the Energy OSX platform (banners, favicons, tokens)."
 readme = "README.md"
 requires-python = ">=3.11"

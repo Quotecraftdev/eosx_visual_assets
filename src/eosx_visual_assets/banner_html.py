@@ -1,20 +1,26 @@
 # ==============================================================
 # File: banner_html.py
-# Version: v0.1.0 | Date: 2026-10-05
-# Purpose: The app banner, rendered as HTML and CSS instead of
-#          SVG, for surfaces whose width varies.
+# Version: v0.2.0 | Date: 2026-10-06
+# Purpose: The app banner, rendered as HTML and CSS, for surfaces
+#          whose width varies.
 #
 #          banner.py emits a fixed 1440x300 SVG. That is right for
 #          a web page or a document and wrong inside an app: a
 #          fixed viewBox scales uniformly, so narrowing the column
-#          shrinks the type with it. This module emits the same
-#          banner as markup that reflows, with the type scale held
-#          in proportion by one multiplier.
+#          shrinks the type with it.
 #
-#          Every value comes from the registry. Nothing here is
-#          typed, and nothing varies per app except the right-hand
-#          zone - the glyph, the app name and the punch line.
-#          KB_GROUP.md section 7.4 is the rule this implements.
+#          EVERY NUMBER COMES FROM tokens/banner_geometry.json,
+#          read off the decided drawing. Every colour comes from
+#          the registry. This file types neither. If a value is
+#          wanted that the geometry has not got, it goes in the
+#          geometry file, not here.
+#
+#          v0.2.0 rebuilt against the decided standard
+#          (energy_osx_banner_final_pricing_intelligence.html,
+#          12-07-2026; KB_GROUP.md 7.4). The previous version held
+#          its own numbers - headline 21 against the SVG's 52, with
+#          no shared constant and no test comparing them - which is
+#          how two renderings of one banner drifted apart.
 # ==============================================================
 
 from __future__ import annotations
@@ -23,161 +29,151 @@ import html
 
 from eosx_visual_assets import tokens as T
 from eosx_visual_assets.apps import APPS, App
+from eosx_visual_assets.geometry import GEOMETRY, colour, part, scale_expr
 from eosx_visual_assets.icons import ICON_BOX, glyph
 
-# Reference geometry, from the shared banner spec (v1.0.0, 12-07-2026).
-# These are the sizes at full width; everything scales from them together,
-# which is what makes two apps at different widths still look like one system.
-PAD_Y, PAD_X = 26, 28
-RADIUS = 10
-GAP = 32
-DIVIDER_PAD = 28
-SIZE_EYEBROW = 11
-SIZE_HEADLINE = 21
-SIZE_DOMAINS = 11
-SIZE_APP_NAME = 17
-SIZE_PUNCHLINE = 10
-MARK = 22          # app glyph box, left of the app name
-MARK_GAP = 9
-
-#: Width the reference sizes are quoted at.
-REFERENCE_WIDTH = 1440
-
-__all__ = ["app_banner_css", "app_banner_html", "REFERENCE_WIDTH"]
+__all__ = ["app_banner_css", "app_banner_html", "headline_lines"]
 
 
-def _gradient_css() -> str:
-    """The platform gradient, from on_dark - never retyped."""
-    stops = ", ".join(
-        "%s %s%%" % (colour, round(stop * 100, 2))
-        for colour, stop in zip(T.GRADIENT, T.GRADIENT_STOPS)
-    )
-    return "linear-gradient(90deg, %s)" % stops
 
+def headline_lines() -> tuple[str, str, str]:
+    """The strapline split into its two rendered lines.
 
-def _headline_parts() -> tuple[str, str, str]:
-    """Split the strapline into its two rendered lines.
+    Returns (first line, joiner, accent). The joiner leads the second line and
+    the accent is the coloured phrase.
 
-    The spec sets "energy intelligence" in the accent teal on line two. That
-    phrase is derived from the token, not held as a second copy of it - if the
-    strapline changes, this follows, and if it stops matching the shape the
-    whole line renders plain rather than inventing a split.
+    Where the break falls is a recorded decision in the geometry file, not a
+    reading of the drawing: the 12-07-2026 drawing breaks after the joiner,
+    Chris chose 06-10-2026 to break before it.
+
+    Derived from the strapline token, never a second copy of it. If the
+    strapline stops containing the joiner the line renders plain, rather than
+    being split somewhere invented.
     """
+    h = part("platform", "headline")
+    joiner = h["joiner"]
     tagline = T.TAGLINE
-    marker = " for "
-    if marker in tagline:
-        head, tail = tagline.split(marker, 1)
-        return head.strip(), "for", tail.strip()
-    return tagline, "", ""
+    marker = " %s " % joiner
+    if marker not in tagline:
+        return tagline, "", ""
+    head, tail = tagline.split(marker, 1)
+    if h.get("break_before_joiner", True):
+        return head.strip(), joiner, tail.strip()
+    return "%s %s" % (head.strip(), joiner), "", tail.strip()
+
+
+def _text_rule(selector: str, spec: dict, *, extra: str = "") -> str:
+    """One text block's CSS, entirely from the geometry."""
+    bits = [
+        "font-size: %s;" % scale_expr(spec["size"]),
+        "font-weight: %d;" % spec["weight"],
+        "line-height: %g;" % spec["line_height"],
+        "color: %s;" % colour(spec["colour"]),
+        "margin: 0 0 %s 0;" % scale_expr(spec["margin_bottom"]),
+    ]
+    if spec.get("letter_spacing"):
+        bits.insert(2, "letter-spacing: %gem;" % spec["letter_spacing"])
+    if spec.get("uppercase"):
+        bits.append("text-transform: uppercase;")
+    if extra:
+        bits.append(extra)
+    return "%s {\n  %s\n}\n" % (selector, "\n  ".join(bits))
 
 
 def app_banner_css(*, scope: str = ".eosx-banner") -> str:
     """The stylesheet. One copy, identical for every app.
 
-    `scope` only renames the class, for an app whose CSS would otherwise
-    collide. It changes no value.
+    Child selectors carry the scope twice on purpose: a host application may
+    style text inside its own containers, and one class is easy to outrank.
+    Do not flatten them.
     """
-    grad = _gradient_css()
     s = scope
-    return f"""\
+    b = part("banner")
+    d = part("divider")
+    eyebrow = part("platform", "eyebrow")
+    headline = part("platform", "headline")
+    domains = part("platform", "domains")
+    mark = part("app", "mark")
+    name = part("app", "name")
+    punch = part("app", "punchline")
+
+    stops = ", ".join(
+        "%s %g%%" % (c, st * 100) for c, st in zip(T.GRADIENT, T.GRADIENT_STOPS)
+    )
+    body_font = "'%s', system-ui, sans-serif" % T.FONT_BODY
+    head_font = "'%s', system-ui, sans-serif" % T.FONT_HEADING
+
+    css = f"""\
 /* Energy OSX app banner - generated by eosx_visual_assets.banner_html.
-   Do not edit. Every value comes from brand_tokens.json. */
-/* Every child selector carries the scope twice. That is deliberate: a host
-   application may colour text inside its own container - Streamlit does, with
-   `[data-testid="stMarkdownContainer"] p` - and a single-class rule loses to
-   it, which turned the whole platform zone invisible on a dark bar. Two
-   classes outrank one class plus one element. Do not flatten these. */
+   Do not edit. Numbers come from tokens/banner_geometry.json, colours from
+   brand_tokens.json. Change those, not this. */
 {s} {{
   container-type: inline-size;
-  background: {grad};
-  border-radius: {RADIUS}px;
+  background: linear-gradient(90deg, {stops});
+  border-radius: {scale_expr(b["radius"])};
   overflow: hidden;
 }}
 {s} {s}__inner {{
-  /* One multiplier drives every size below, so the proportions hold at any
-     width. 1 at the reference width, never below 0.72 or the type stops
-     being legible. cqi needs the container above; the plain value is the
-     fallback where container queries are unavailable. */
-  --eosx-b: 1;
-  --eosx-b: clamp(0.72, calc(100cqi / {REFERENCE_WIDTH}px), 1);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: calc({GAP}px * var(--eosx-b));
-  padding: calc({PAD_Y}px * var(--eosx-b)) calc({PAD_X}px * var(--eosx-b));
+  gap: {scale_expr(b["gap"])};
+  padding: {scale_expr(b["padding_y"])} {scale_expr(b["padding_x"])};
 }}
-{s} {s}__eyebrow {{
-  font-family: '{T.FONT_BODY}', system-ui, sans-serif;
-  font-size: calc({SIZE_EYEBROW}px * var(--eosx-b));
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: {T.MUTED_TEAL};
-  margin: 0 0 calc(10px * var(--eosx-b)) 0;
+{s} {s}__platform {{
+  min-width: 0;
 }}
-{s} {s}__headline {{
-  font-family: '{T.FONT_HEADING}', system-ui, sans-serif;
-  font-size: calc({SIZE_HEADLINE}px * var(--eosx-b));
-  font-weight: 500;
-  line-height: 1.25;
-  color: {T.WHITE};
-  margin: 0;
-}}
-{s} {s}__headline em {{ color: {T.ACCENT_TEAL}; font-style: normal; }}
-{s} {s}__domains {{
-  font-family: '{T.FONT_BODY}', system-ui, sans-serif;
-  font-size: calc({SIZE_DOMAINS}px * var(--eosx-b));
-  letter-spacing: 0.03em;
-  color: {T.SUBLABEL};
-  margin: calc(10px * var(--eosx-b)) 0 0 0;
-}}
+"""
+    css += _text_rule("%s %s__eyebrow" % (s, s), eyebrow,
+                      extra="font-family: %s;" % body_font)
+    css += _text_rule("%s %s__headline" % (s, s), headline,
+                      extra="font-family: %s;" % head_font)
+    css += ("%s %s__headline em {\n  color: %s;\n  font-style: normal;\n}\n"
+            % (s, s, colour(headline["accent_colour"])))
+    css += _text_rule("%s %s__domains" % (s, s), domains,
+                      extra="font-family: %s;" % body_font)
+    css += f"""\
 {s} {s}__app {{
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   text-align: right;
-  border-left: 1px solid {T.DIVIDER};
-  padding-left: calc({DIVIDER_PAD}px * var(--eosx-b));
   flex: 0 0 auto;
+  border-left: {d["width"]}px solid {colour("divider")};
+  padding-left: {scale_expr(d["padding_left"])};
 }}
-{s} {s}__appname {{
-  display: flex;
-  align-items: center;
-  gap: calc({MARK_GAP}px * var(--eosx-b));
-  font-family: '{T.FONT_HEADING}', system-ui, sans-serif;
-  font-size: calc({SIZE_APP_NAME}px * var(--eosx-b));
-  font-weight: 500;
-  color: {T.WHITE};
-  margin: 0;
-}}
+"""
+    css += _text_rule(
+        "%s %s__appname" % (s, s), name,
+        extra=("font-family: %s;\n  display: flex;\n  align-items: center;\n"
+               "  justify-content: flex-end;\n  gap: %s;"
+               % (head_font, scale_expr(mark["gap"]))))
+    css += f"""\
 {s} {s}__mark {{
-  width: calc({MARK}px * var(--eosx-b));
-  height: calc({MARK}px * var(--eosx-b));
+  width: {scale_expr(mark["size"])};
+  height: {scale_expr(mark["size"])};
   flex: 0 0 auto;
   display: block;
 }}
-{s} {s}__punchline {{
-  font-family: '{T.FONT_BODY}', system-ui, sans-serif;
-  font-size: calc({SIZE_PUNCHLINE}px * var(--eosx-b));
-  letter-spacing: 0.16em;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: {T.MUTED_TEAL};
-  margin: calc(8px * var(--eosx-b)) 0 0 0;
-}}
+"""
+    css += _text_rule("%s %s__punchline" % (s, s), punch,
+                      extra="font-family: %s;" % body_font)
+    css += f"""\
 /* Below this the two zones stop fitting side by side. The app zone moves
    under the platform zone rather than the type shrinking past legibility. */
-@container (max-width: 560px) {{
+@container (max-width: {GEOMETRY["stack_below"]}px) {{
   {s} {s}__inner {{
     flex-direction: column; align-items: flex-start;
-    gap: calc(18px * var(--eosx-b));
+    gap: {scale_expr(GEOMETRY["stack_gap"])};
   }}
   {s} {s}__app {{
     align-items: flex-start; text-align: left; width: 100%;
-    border-left: 0; border-top: 1px solid {T.DIVIDER};
-    padding-left: 0; padding-top: calc(16px * var(--eosx-b));
+    border-left: 0; border-top: {d["width"]}px solid {colour("divider")};
+    padding-left: 0; padding-top: {scale_expr(GEOMETRY["stack_padding_top"])};
   }}
 }}
 """
+    return css
 
 
 def app_banner_html(app: App | str, *, include_css: bool = False,
@@ -185,21 +181,23 @@ def app_banner_html(app: App | str, *, include_css: bool = False,
     """The banner markup for one app.
 
     The left platform zone is byte-identical for every app. The right zone is
-    the only part that varies, and it varies only by what the registry says.
+    the only part that varies, and only by what the registry says.
     """
     if isinstance(app, str):
         try:
             app = APPS[app]
         except KeyError:
             raise KeyError(
-                "%r is not in the registry. Add it to brand_tokens.json rather "
-                "than passing a name through." % app
+                "%r is not in the registry. Add it to brand_tokens.json "
+                "rather than passing a name through." % app
             ) from None
 
-    head, joiner, accent = _headline_parts()
+    head, joiner, accent = headline_lines()
     headline = html.escape(head)
-    if joiner:
-        headline += "<br>%s <em>%s</em>" % (html.escape(joiner), html.escape(accent))
+    if accent:
+        tail = ("%s <em>%s</em>" % (html.escape(joiner), html.escape(accent))
+                if joiner else "<em>%s</em>" % html.escape(accent))
+        headline += "<br>%s" % tail
 
     cls = scope.lstrip(".")
     mark = glyph(app.icon, stroke=T.ACCENT_TEAL, fill=T.ACCENT_TEAL, sw=2.6)

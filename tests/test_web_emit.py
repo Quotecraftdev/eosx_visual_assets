@@ -28,6 +28,7 @@ import pytest
 from eosx_visual_assets import tokens as T
 from eosx_visual_assets.apps import APPS
 from eosx_visual_assets.banner_html import app_banner_html
+from eosx_visual_assets.geometry import GEOMETRY
 from eosx_visual_assets.web import banner_tsx, emit_web, tokens_ts
 
 ALL_SLUGS = sorted(APPS)
@@ -160,3 +161,21 @@ def test_react_renders_the_same_dom_as_python(tmp_path: Path) -> None:
         assert _canon(app_banner_html(slug)) == _canon(rendered[slug]), (
             "React and Python render different DOM for %s" % slug
         )
+
+
+def test_the_react_side_gets_the_same_geometry_not_a_copy() -> None:
+    """tokens.ts must carry the geometry file verbatim, minus its notes."""
+    ts = tokens_ts()
+    m = re.search(r"export const bannerGeometry = (\{.*?\}) as const;", ts, re.S)
+    assert m, "bannerGeometry is not exported"
+    emitted = json.loads(m.group(1))
+    expected = {k: v for k, v in GEOMETRY.items() if not k.startswith("_")}
+
+    def strip(node):
+        if isinstance(node, dict):
+            return {k: strip(v) for k, v in node.items() if not k.startswith("_")}
+        return node
+
+    assert emitted == strip(expected), (
+        "the React geometry has drifted from tokens/banner_geometry.json"
+    )

@@ -3,6 +3,39 @@
 All notable changes to `eosx-visual-assets` are documented here. The format
 follows Keep a Changelog; versions track the design tokens and template API.
 
+## [0.5.0] — 2026-10-06
+
+### Changed — the banner now has one definition, and it is the decided drawing
+- `tokens/banner_geometry.json` — every number the banner uses, read off
+  `energy_osx_banner_final_pricing_intelligence.html` (12-07-2026), the standard decided by
+  Chris on 06-10-2026. Padding, radius, gap, divider, every size, weight, letter-spacing,
+  line-height, margin, mark size and mark gap.
+- `geometry.py` reads it; `banner_html.py` (Streamlit) and `web.py` (React) both render from it.
+  **Neither owns a number.** Before this the SVG renderer said headline 52 and the HTML renderer
+  said 21, with no shared constant and nothing comparing them.
+- **The type no longer scales with container width.** The previous build multiplied every size by
+  a scale derived from a 1440px reference — a number the drawing has not got — so the banner
+  shrank in a narrow column instead of matching the standard. The drawing's sizes are the design
+  at any width: the box reflows, the type does not.
+- `__version__` is read from the package metadata. It had said 0.1.0 while `pyproject.toml` said
+  0.4.1 — the same second-copy fault this library exists to end.
+
+### Added — tests that would have caught what shipped
+- `tests/test_streamlit_host.py` — starts a **real Streamlit app**, with a light theme config as
+  the deployed apps have, renders it in Chrome, and asserts the banner markup survives the
+  sanitiser, every line of text reaches the DOM, and **the text is actually painted**, by
+  sampling pixels. The banner shipped broken twice because it had only ever been checked
+  standalone in a file, which skips Markdown processing, the sanitiser and the host's own CSS.
+- `test_no_number_in_the_css_was_typed_by_the_renderer` and
+  `test_the_renderer_reads_the_geometry_rather_than_copying_it` — a changed geometry value must
+  change the stylesheet.
+- `test_the_react_side_gets_the_same_geometry_not_a_copy`.
+
+### Recorded, awaiting confirmation
+- The strapline breaks **before** "for" — Chris, 06-10-2026. The drawing breaks after it.
+- `stack_below`, `stack_gap`, `stack_padding_top` are **not in the drawing**. It is one width and
+  says nothing about narrow containers. Declared in the geometry file as additions.
+
 ## [0.4.1] — 2026-10-06
 
 ### Fixed

@@ -27,11 +27,8 @@ from pathlib import Path
 
 from eosx_visual_assets import tokens as T
 from eosx_visual_assets.apps import APPS
-from eosx_visual_assets.banner_html import (
-    REFERENCE_WIDTH,
-    _headline_parts,
-    app_banner_css,
-)
+from eosx_visual_assets.banner_html import app_banner_css, headline_lines
+from eosx_visual_assets.geometry import GEOMETRY
 from eosx_visual_assets.icons import ICON_BOX, glyph
 
 __all__ = ["tokens_ts", "banner_tsx", "emit_web"]
@@ -44,9 +41,23 @@ _HEADER = (
 )
 
 
+def _without_notes(node):
+    """The geometry minus its explanatory keys, at every depth.
+
+    The notes are for whoever opens the JSON. Shipping them into TypeScript
+    would put prose in a typed constant, and the React side would then differ
+    from the Python side by exactly that prose.
+    """
+    if isinstance(node, dict):
+        return {k: _without_notes(v) for k, v in node.items() if not k.startswith("_")}
+    if isinstance(node, list):
+        return [_without_notes(v) for v in node]
+    return node
+
+
 def tokens_ts() -> str:
     """The registry as a typed TypeScript module."""
-    head, joiner, accent = _headline_parts()
+    head, joiner, accent = headline_lines()
     slugs = sorted(APPS)
     apps = {
         s: {"name": APPS[s].name, "punchline": APPS[s].punchline, "icon": APPS[s].icon}
@@ -80,8 +91,11 @@ export const platform = {j({
     "domains": list(T.DOMAINS),
 })} as const;
 
-export const bannerGeometry = {j({"referenceWidth": REFERENCE_WIDTH,
-                                  "iconBox": ICON_BOX})} as const;
+/** The banner geometry, read off the decided drawing. The component takes
+ *  its numbers from here; the stylesheet takes the same ones. */
+export const bannerGeometry = {j(_without_notes(GEOMETRY))} as const;
+
+export const iconBox = {ICON_BOX};
 
 export type AppSlug = {union};
 
@@ -102,7 +116,7 @@ def banner_tsx() -> str:
     """The React component. Same DOM as app_banner_html, asserted by test."""
     b = _BANNER
     return f"""{_HEADER}
-import {{ apps, glyphs, platform, bannerGeometry, type AppSlug }} from "./tokens";
+import {{ apps, glyphs, platform, iconBox, type AppSlug }} from "./tokens";
 
 export interface BannerProps {{
   /** Which app's banner to render. Must be in the registry. */
@@ -145,7 +159,7 @@ export function Banner({{ app }}: BannerProps) {{
           <p className="{b}__appname">
             <svg
               className="{b}__mark"
-              viewBox={{`0 0 ${{bannerGeometry.iconBox}} ${{bannerGeometry.iconBox}}`}}
+              viewBox={{`0 0 ${{iconBox}} ${{iconBox}}`}}
               aria-hidden="true"
               dangerouslySetInnerHTML={{{{ __html: glyphs[brand.icon] }}}}
             />
