@@ -15,8 +15,12 @@ Do not edit a repo's copy. Edit this file, bump the library, and run the checker
 
 The group brand is one library. This repo does not define it and does not keep a copy of it.
 
-**Source.** `eosx-visual-assets`, installed from its tag:
-`eosx-visual-assets @ git+https://github.com/Quotecraftdev/eosx_visual_assets@v0.2.1`
+**Source.** `eosx-visual-assets`, installed from a tag:
+`eosx-visual-assets @ git+https://github.com/Quotecraftdev/eosx_visual_assets@<tag>`
+**No version is written here.** This block is copied into every repo, so a number in it
+goes stale in thirteen places at once - it still said `v0.2.1` three releases on. The tag
+each repo actually uses is in that repo's `requirements.txt`; the current one is the newest
+in the library's `CHANGELOG.md`.
 The registry is `src/eosx_visual_assets/tokens/brand_tokens.json`, inside the package. Read it
 through the package — `from eosx_visual_assets import tokens` — never by a path into another
 folder on the machine.
