@@ -3,6 +3,22 @@
 All notable changes to `eosx-visual-assets` are documented here. The format
 follows Keep a Changelog; versions track the design tokens and template API.
 
+## [0.6.0] — 2026-11-18
+
+### Added — The OSX, the one Energy OSX app
+- `apps.osx` in `brand_tokens.json`: **Energy OSX Platform**, punch line **ONE PLATFORM. EVERY ANGLE.**
+  The wording is energyosx.com's (the home page eyebrow and the products section title); Chris,
+  18-11-2026. It gives the web shell at osx.energyosx.com its banner and favicon.
+- The icon reuses `dashboard` for now (Chris, 18-11-2026). A glyph of its own is a design call.
+- `banners/banner_osx.svg`, `lockups/lockup_osx.svg`, `favicons/favicon_osx.svg`; the contact sheet
+  and catalogue list 12 apps. **No PNGs for osx yet:** cairosvg is not available on the machine
+  that built this release. Run the full build where it is.
+- `tests/test_installed_package.py` expects the twelfth app.
+
+### Not changed
+- No other app's files were rebuilt. A full rebuild on this machine moves other banners' marks by
+  a few pixels (text measured with different fonts), which is not a change to their design.
+
 ## [0.5.0] — 2026-10-06
 
 ### Changed — the banner now has one definition, and it is the decided drawing

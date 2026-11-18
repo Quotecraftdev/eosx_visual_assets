@@ -114,6 +114,12 @@
       "icon": "learning",
       "punchline": "CAPTURE. BUILD. RECORD.",
       "tagline_draft": false
+    },
+    "osx": {
+      "name": "Energy OSX Platform",
+      "icon": "dashboard",
+      "punchline": "ONE PLATFORM. EVERY ANGLE.",
+      "tagline_draft": false
     }
   },
   "lockup": {

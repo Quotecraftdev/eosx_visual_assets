@@ -1,6 +1,8 @@
 # ==============================================================
 # File: test_installed_package.py
-# Version: v1.0.0 | Date: 2026-10-04
+# Version: v1.0.1 | Date: 2026-11-18
+# Change: osx (Energy OSX Platform) added to the expected apps.
+# Previous: v1.0.0 | 2026-10-04
 # Purpose: Prove the package works the way a consumer uses it -
 #          installed, with this repository nowhere on sys.path.
 #
@@ -30,7 +32,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 EXPECTED_APPS = [
     "bespoke", "custom", "dashboard", "integrity", "learning", "market",
-    "pipeline", "pricing", "professional", "settlement", "signal",
+    "osx", "pipeline", "pricing", "professional", "settlement", "signal",
 ]
 
 
